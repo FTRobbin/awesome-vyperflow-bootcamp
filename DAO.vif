@@ -1,0 +1,24 @@
+# Author Haobin Ni, 2018
+# A demonstration of the DAO reentrancy bug 
+
+user_balance: IFL((wei_value)[address], this)
+
+@public
+def get_user_balance(user:address) -> wei_value:
+    return self.user_balance[user]
+
+
+@public
+@payable
+@IFL_this
+def add_to_balance():
+    self.user_balance[msg.sender] += msg.value
+
+
+@public
+@IFL_this
+def with_draw_balance():
+    amount: wei_value = self.user_balance[msg.sender]
+    send(msg.sender, amount) # this line doesn't compile since the msg.sender and amout don't have "this" integrity
+    self.user_balance[msg.sender] = 0
+
