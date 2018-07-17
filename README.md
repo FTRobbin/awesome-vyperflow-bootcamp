@@ -10,7 +10,7 @@ A curated list of example [VyperFlow](https://github.com/Neroysq/VyperFlow) cont
 
 [open_auction2.vif](open_auction2.vif) Another simple open auction contract. Comparing to [this](https://vyper.readthedocs.io/en/latest/vyper-by-example.html#simple-open-auction) Vyper example.
 
-[wallet.vif](wallet.vif) [wallet_fail.vif](wallet_fail.vif) A simple wallet. The failed version forgot a identity check and this bug is caught by VyperFlow.
+[wallet.vif](wallet.vif) [wallet_fail.vif](wallet_fail.vif) A simple wallet. The failed version forgets an identity check and this bug is caught by VyperFlow.
 
 ---
 
