@@ -1,0 +1,26 @@
+# Author: Haobin Ni, 2018
+# A unidirected one-time payment channel
+
+payer : IFL(address, payer)
+receiver : IFL(address, receiver)
+
+@public
+def __init__(_payer : address, _receiver : address):
+    self.payer = _payer
+    self.receiver = _receiver
+
+@public
+@IFL_this
+def close(val : IFL(wei_value, payer_receiver)):
+    send(endorse(self.receiver, receiver, this), endorse(val, payer_receiver, this))
+    selfdestruct(endorse(self.payer, payer, this))
+
+@public
+@IFL_payer
+def transfer_ownership(new_sender : IFL(address, payer)):
+    self.payer = new_sender
+
+@public
+@IFL_receiver
+def transfer_receiver(new_receiver : IFL(address, receiver)):
+    self.receiver = new_receiver
