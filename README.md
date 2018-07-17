@@ -12,6 +12,7 @@ A curated list of example [VyperFlow](https://github.com/Neroysq/VyperFlow) cont
 
 [wallet.vif](wallet.vif) [wallet_fail.vif](wallet_fail.vif) A simple wallet. The failed version forgets an identity check and this bug is caught by VyperFlow.
 
+[safe_remote_purchase.vif](safe_remote_purchase.vif) Escrow contract implementing a system for a trustless transaction between a buyer and a seller.
 ---
 
 IC3 Bootcamp VyperFlow Workgroup, 2018
