@@ -4,6 +4,8 @@ A curated list of example [VyperFlow](https://github.com/Neroysq/VyperFlow) cont
 
 **Work in Progress**
 
+[DAO.vif](DAO.vif) A demonstration of how VyperFlow could catch the DAO reentrancy bug
+
 [payment_channel.vif](payment_channel.vif) A unidirected, one-time payment channel contract.
 
 [open_auction1.vif](open_auction1.vif) A simple open auction contract.
