@@ -1,0 +1,38 @@
+# Author: Haobin Ni, 2018
+# Another simple open auction.
+# Everyone can submit bids at any price.
+# Everyone can end the auction after the end time.
+
+beneficiary: IFL(address, beneficiary)
+auction_start: IFL(timestamp, this)
+auction_end: IFL(timestamp, this)
+highest_bidder: IFL(address, this)
+highest_bid: IFL(wei_value, this)
+ended: IFL(bool, this)
+
+@public
+@IFL_beneficiary
+def __init__(_beneficiary: address, _bidding_time: timedelta):
+    self.beneficiary = _beneficiary
+    self.auction_start = block.timestamp
+    self.auction_end = self.auction_start + endorse(_bidding_time, beneficiary, this)
+
+@public
+@payable
+@IFL_this
+def bid():
+    assert block.timestamp < self.auction_end
+    assert msg.value > self.highest_bid
+    if not self.highest_bid == 0:
+        send(self.highest_bidder, self.highest_bid)
+    self.highest_bidder = msg.sender
+    self.highest_bid = msg.value
+
+
+@public
+@IFL_this
+def end_auction():
+    assert block.timestamp >= self.auction_end
+    assert not self.ended
+    self.ended = True
+    send(endorse(self.beneficiary, beneficiary, this), self.highest_bid)

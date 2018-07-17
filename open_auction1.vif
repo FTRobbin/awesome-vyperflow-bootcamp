@@ -1,0 +1,32 @@
+# Author: Haobin Ni, 2018
+# A simple open auction. 
+# Everyone can submit a bit greater than the initial price.
+# Only the beneficiary can terminate the auction.
+
+beneficiary: IFL(address, beneficiary)
+initial_price: IFL(wei_value, this)
+highest_bidder: IFL(address, this)
+highest_bid: IFL(wei_value, this)
+
+@public
+@IFL_this
+def __init__(_beneficiary: IFL(address, beneficiary), _initial_price: IFL(wei_value, beneficiary)):
+    self.beneficiary = _beneficiary
+    self.initial_price = endorse(_initial_price, beneficiary, this)
+
+@public
+@payable
+@IFL_this
+def bid():
+    assert msg.value > self.initial_price
+    assert msg.value > self.highest_bid
+    if not self.highest_bid == 0:
+        send(self.highest_bidder, self.highest_bid)
+    self.highest_bidder = msg.sender
+    self.highest_bid = msg.value
+
+
+@public
+@IFL_beneficiary
+def end_auction():
+    selfdestruct(endorse(self.beneficiary, beneficiary, this))
