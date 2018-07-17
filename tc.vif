@@ -1,0 +1,60 @@
+# Constants that we don't have values for right now
+minValue : IFL(unit256, top)
+maxValue : IFL(unit256, top)
+cancelValue : IFL(unit256, top)
+
+nextId : IFL(uint256, this)
+
+SGX : IFL(address, this)
+
+requests : {
+        deposit : IFL(wei_value, this),
+        requester : IFL(address, this),
+        params : IFL(bytes, this),
+        callback : IFL(address, requester),
+        flag : IFL(unit256, this)
+    }[IFL(unit256, this)]
+
+@public
+def __init__(_SGX : address):
+    self.SGX = _SGX
+    self.nextId = 0
+
+@public
+@payable
+@IFL_autoendorsethis
+def request(params : bytes, callback : address) -> unit235:
+    assert msg.value >= minValue
+    assert msg.value <= maxValue
+
+    id = nextId
+    nextId++
+    requests[id] = {deposit : msg.value,
+                    requester : msg.sender,
+                    params : endorse(params, msg.sender, this),
+                    callback : callback,
+                    flag : 0}
+    return id
+
+@public
+@IFL_autoendorsethis
+def cancel(id : uint256) -> bool:
+    assert endorse(id < nextId, bot, this)
+    assert requests[id].value >= cancelValue
+    assert requests[id].requester == msg.sender
+    assert requests[id].flag == 0
+
+    requests[id].flag = 1
+    send(msg.sender, requests[id].value - cancelValue)
+
+@public
+def updateCallback(id : uint256, callback : address):
+    assert id < nextId
+    assert msg.sender == request[id].requester
+
+    request[id].callback = callback
+
+@public
+@IFL_autoendorsethis
+def deliver(id : IFL(unit, SGX), params : IFL(bytes, SGX), data : IFL(bytes, SGX)):
+#Ethan: I still need to fill this in!
