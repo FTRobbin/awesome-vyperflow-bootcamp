@@ -1,0 +1,52 @@
+# Author: Haobin, 2018
+# Crowdfund where people can contribute funds to the campaign
+# If the funding reaches its goal, all the money will be sent to the benficiary
+# Or else it will be refunded
+
+funders: IFL({sender: address, value: wei_value}[int128], funders)
+nextFunderIndex: IFL(int128, this)
+beneficiary: IFL(address, beneficiary)
+deadline: IFL(timestamp, this)
+goal: IFL(wei_value, this)
+refundIndex: IFL(int128, this)
+timelimit: IFL(timedelta, this)
+
+
+@public
+@IFL_this
+def __init__(_beneficiary: IFL(address, benficiary), _goal: IFL(wei_value, this), _timelimit: IFL(timedelta, this)):
+    self.beneficiary = _beneficiary
+    self.deadline = block.timestamp + _timelimit
+    self.timelimit = _timelimit
+    self.goal = _goal
+
+
+@public
+@payable
+@IFL_this
+def participate():
+    assert block.timestamp < self.deadline
+    nfi: int128 = self.nextFunderIndex # Its label can autoinferred
+    self.funders[nfi] = endorse({sender: msg.sender, value: msg.value}, sender, funders)
+    self.nextFunderIndex = nfi + 1
+
+
+@public
+@IFL_this
+def finalize():
+    assert block.timestamp >= self.deadline and self.balance >= self.goal
+    selfdestruct(endorse(self.beneficiary, beneficiary, this))
+
+
+@public
+@IFL_this
+def refund():
+    assert block.timestamp >= self.deadline and self.balance < self.goal
+    ind: int128 = self.refundIndex
+    for i in range(ind, ind + 30):
+        if i >= self.nextFunderIndex:
+            self.refundIndex = self.nextFunderIndex
+            return
+        send(endorse(self.funders[i].sender, funders, this), endorse(self.funders[i].value, funders, this))
+        self.funders[i] = None
+    self.refundIndex = ind + 30
