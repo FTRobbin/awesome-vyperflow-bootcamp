@@ -36,7 +36,7 @@ def __init__(_name: bytes32, _symbol: bytes32, _decimals: uint256, _initialSuppl
 @IFL_this
 def balanceOf(_owner:IFL(address,owner)) -> uint256:
 
-    return convert(self.balances[_owner], 'uint256')
+    return convert(self.balances[endorse(_owner, this)], 'uint256')
 
 
 # Send `_value` tokens to `_to` from your account
@@ -44,11 +44,10 @@ def balanceOf(_owner:IFL(address,owner)) -> uint256:
 @IFL_this
 def transfer(_to: IFL(address,owner), _amount: IFL((int128(uint256)),owner)) -> bool:
 
-    if self.balances[msg.sender] >= _amount and \
-       self.balances[_to] + _amount >= self.balances[_to]:
+    if self.balances[endorse(msg.sender, this)] >= _amount and self.balances[endorse(_to, this)] + endorse(_amount, this) >= self.balances[endorse(_to, this)]:
 
-        self.balances[msg.sender] -= _amount  # Subtract from the sender
-        self.balances[_to] += _amount  # Add the same to the recipient
+        self.balances[endorse(msg.sender, this)] -= endorse(_amount, this)  # Subtract from the sender
+        self.balances[endorse(_to, this)] += endorse(_amount, this)  # Add the same to the recipient
         log.Transfer(msg.sender, _to, convert(_amount, 'uint256'))  # log transfer event.
 
         return True
@@ -62,12 +61,11 @@ def transfer(_to: IFL(address,owner), _amount: IFL((int128(uint256)),owner)) -> 
 # def transferFrom(_from: address, _to: address, _value: int128(uint256)) -> bool:
 def transferFrom(_from: IFL(address,payer), _to: IFL(address,receiver), _value: IFL((int128(uint256)),payer)) -> bool:
 
-    if _value <= self.allowed[_from][msg.sender] and \
-       _value <= self.balances[_from]:
+    if endorse(_value, this) <= self.allowed[endorse(_from, this)][endorse(msg.sender, this)] and endorse(_value, this) <= self.balances[endorse(_from, this)]:
 
-        self.balances[_from] -= _value  # decrease balance of from address.
-        self.allowed[_from][msg.sender] -= _value  # decrease allowance.
-        self.balances[_to] += _value  # incease balance of to address.
+        self.balances[endorse(_from, this)] -= endorse(_value, this)  # decrease balance of from address.
+        self.allowed[endorse(_from, this)][endorse(msg.sender, this)] -= endorse(_value, this)  # decrease allowance.
+        self.balances[endorse(_to, this)] += endorse(_value, this)  # incease balance of to address.
         log.Transfer(_from, _to, convert(_value, 'uint256'))  # log transfer event.
 
         return True
@@ -80,7 +78,7 @@ def transferFrom(_from: IFL(address,payer), _to: IFL(address,receiver), _value: 
 @public
 def approve(_spender: IFL(address,payer), _amount:IFL((int128(uint256)),payer)) -> bool:
 
-    self.allowed[msg.sender][_spender] = _amount
+    self.allowed[endorse(msg.sender, this)][endorse(_spender, this)] = endorse(_amount, this)
     log.Approval(msg.sender, _spender, convert(_amount, 'uint256'))
     return True
 
@@ -89,4 +87,4 @@ def approve(_spender: IFL(address,payer), _amount:IFL((int128(uint256)),payer)) 
 @public
 def allowance(_owner:IFL(address,owner), _spender:IFL(address,spender)) -> uint256:
 
-    return convert(self.allowed[_owner][_spender], 'uint256')
+    return convert(self.allowed[endorse(_owner, this)][endorse(_spender, this)], 'uint256')

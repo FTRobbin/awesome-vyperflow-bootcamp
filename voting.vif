@@ -9,13 +9,13 @@ num_proposals: IFL(int128, this)
 
 @public
 @constant
-@IFL_this
+@IFL_voters
 def delegated(addr: address) -> bool:
     return not not self.voters[addr].delegate
 
 @public
 @constant
-@IFL_this
+@IFL_voters
 def directly_voted(addr: address) -> bool:
     return self.voters[addr].voted and (not self.voters[addr].delegate)
 
@@ -70,7 +70,7 @@ def forward_weight(delegater: address):
 
 
 @public
-@IFL_this
+@IFL_voters
 def delegate(to: address):
     assert not self.voters[msg.sender].voted
     # Throws if the sender tries to delegate their vote to themselves or to
@@ -111,7 +111,7 @@ def delegate(to: address):
             self.voters[target].weight = 0
 
 @public
-@IFL_this
+@IFL_voters
 def vote(proposal: int128):
     # can't vote twice
     assert not self.voters[msg.sender].voted

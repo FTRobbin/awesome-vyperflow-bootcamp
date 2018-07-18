@@ -1,7 +1,7 @@
 # Constants that we don't have values for right now
-minValue : IFL(unit256, top)
-maxValue : IFL(unit256, top)
-cancelValue : IFL(unit256, top)
+minValue : IFL(wei_value, top)
+maxValue : IFL(wei_value, top)
+cancelValue : IFL(wei_value, top)
 
 nextId : IFL(uint256, this)
 
@@ -10,51 +10,69 @@ SGX : IFL(address, this)
 requests : {
         deposit : IFL(wei_value, this),
         requester : IFL(address, this),
-        params : IFL(bytes, this),
+        params : IFL(bytes32, this),
         callback : IFL(address, requester),
-        flag : IFL(unit256, this)
-    }[IFL(unit256, this)]
+        flag : IFL(uint256, this)
+    }[uint256]
 
 @public
 def __init__(_SGX : address):
+    self.minValue = 0
+    self.maxValue = 3000000
+    self.cancelValue = 20000
+
     self.SGX = _SGX
     self.nextId = 0
 
 @public
 @payable
 @IFL_autoendorsethis
-def request(params : bytes, callback : address) -> unit235:
-    assert msg.value >= minValue
-    assert msg.value <= maxValue
+def request(params : bytes32, callback : address) -> uint256:
+    assert msg.value >= self.minValue
+    assert msg.value <= self.maxValue
 
-    id = nextId
-    nextId++
-    requests[id] = {deposit : msg.value,
-                    requester : msg.sender,
-                    params : endorse(params, msg.sender, this),
-                    callback : callback,
-                    flag : 0}
+    id : uint256 = self.nextId
+    self.nextId = self.nextId + 1
+    self.requests[id] = {deposit : msg.value,
+                         requester : msg.sender,
+                         params : endorse(params, msg.sender, this),
+                         callback : callback,
+                         flag : 0}
     return id
 
 @public
 @IFL_autoendorsethis
 def cancel(id : uint256) -> bool:
-    assert endorse(id < nextId, bot, this)
-    assert requests[id].value >= cancelValue
-    assert requests[id].requester == msg.sender
-    assert requests[id].flag == 0
+    assert endorse(id < self.nextId, bot, this)
+    assert self.requests[id].deposit >= self.cancelValue
+    assert self.requests[id].requester == msg.sender
 
-    requests[id].flag = 1
-    send(msg.sender, requests[id].value - cancelValue)
+    if self.requests[id].flag == 0:
+        self.requests[id].flag = 1
+        send(msg.sender, self.requests[id].deposit - self.cancelValue)
+        return True
+    else:
+        return False
 
 @public
 def updateCallback(id : uint256, callback : address):
-    assert id < nextId
-    assert msg.sender == request[id].requester
+    assert id < self.nextId
+    assert msg.sender == self.requests[id].requester
 
-    request[id].callback = callback
+    self.requests[id].callback = callback
 
 @public
 @IFL_autoendorsethis
-def deliver(id : IFL(unit, SGX), params : IFL(bytes, SGX), data : IFL(bytes, SGX)):
-#Ethan: I still need to fill this in!
+def deliver(id : IFL(uint256, self.SGX), params : IFL(bytes32, self.SGX), data : IFL(bytes[15], self.SGX)):
+    assert id < self.nextId
+    assert self.requests[id].deposit >= self.minValue
+    assert self.requests[id].params == params
+    assert self.requests[id].flag == 0 or self.requests[id].flag == 1
+
+    self.requests[id].flag = 2
+    if self.requests[id].flag == 1:
+        send(self.SGX, self.cancelValue)
+    else:
+        send(self.SGX, self.requests[id].deposit)
+        gasValue : wei_value = self.requests[id].deposit - self.minValue
+        output : bytes[1] = raw_call(self.requests[id].callback, data, outsize=1, gas=gasValue)
