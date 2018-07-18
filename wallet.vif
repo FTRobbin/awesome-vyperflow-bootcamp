@@ -10,12 +10,9 @@ def __init__(_owner : IFL(address, this)):
 
 @public
 @IFL_this
-def withdraw(_val : IFL(wei_value, bot), _addr : IFL(address, bot)):
-    if endorse(_addr == self.owner, bot, this):
-        val : IFL(wei_value, this) = _val
-        addr : IFL(address, this) = _addr
-        if val <= self.balance:
-            send(addr, val)
+def withdraw(addr : IFL(address, sender)):
+	assert addr == self.owner
+	send(endorse(addr, this), self.balance)
 
 @public
 @payable
