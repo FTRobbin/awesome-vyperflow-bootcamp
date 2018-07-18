@@ -1,0 +1,4 @@
+vyperflow_is_awesome: IFL(bool, truth)
+said_your_neighbor: IFL(bool, gossip)
+vyperflow_is_awesome = said_your_neighbor
+
