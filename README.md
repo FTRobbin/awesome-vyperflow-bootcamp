@@ -26,6 +26,8 @@ A curated list of example [VyperFlow](https://github.com/Neroysq/VyperFlow) cont
 
 [name_registry.vif](name_registry.vif) : A smart contract that manages the registry of people's name and their address.You can register and find your address here. Comparing to [this](https://github.com/ethereum/vyper/blob/master/examples/name_registry.vy).
 
+[voting.vif](voting.vif) : A smart contract that manages votings of participants on a list of proposals. Each participant may choose to vote, or delegate their vote to another voter. Comparing to [this](https://vyper.readthedocs.io/en/latest/vyper-by-example.html#voting).
+
 [ERC20.vif](ERC20.vif) : A smart contract that describes ERC20_Token_Standard. Comparing to [this](https://github.com/ethereum/vyper/blob/master/examples/tokens/ERC20.vy).
 
 
