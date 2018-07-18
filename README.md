@@ -24,6 +24,9 @@ A curated list of example [VyperFlow](https://github.com/Neroysq/VyperFlow) cont
 
 [onchain_market.vif](onchain_market.vif) : A smart contract that manages a market on the chain. You can buy and sell things on the market. Comparing to [this](https://gist.github.com/SongChujun/7a09ba218445af1b6cb8aff4dc665cac).
 
+[name_registry.vif](name_registry.vif) : A smart contract that manages the registry of people's name and their address.You can register and find your address here. Comparing to [this](https://github.com/ethereum/vyper/blob/master/examples/name_registry.vy).
+
+
 ---
 
 IC3 Bootcamp VyperFlow Workgroup, 2018

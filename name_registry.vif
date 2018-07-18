@@ -1,0 +1,13 @@
+
+registry: IFL(address[bytes[100]],this)
+@public
+@IFL_this
+def register(name:IFL(bytes[100],this),owner:IFL(address,this)):
+    assert self.registry[name] == 0x0000000000000000000000000000000000000000  # check name has not been set yet.
+    self.registry[name] = owner
+
+@public
+@constant
+@IFL_this
+def lookup(name:IFL(bytes[100],this)) -> address:
+    return self.registry[name]
