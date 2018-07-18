@@ -11,8 +11,8 @@ def __init__(_owner : IFL(address, this)):
 @public
 @IFL_this
 def withdraw(addr : IFL(address, sender)):
-	assert addr == self.owner
-	send(endorse(addr, this), self.balance)
+    assert addr == self.owner
+    send(endorse(addr, this), self.balance)
 
 @public
 @payable
