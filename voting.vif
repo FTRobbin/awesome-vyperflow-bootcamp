@@ -1,7 +1,28 @@
-# a mapping
-voters: IFL({weight: int128,voted: bool,delegate: address,vote: int128}[address], voters)
+# Voting with delegation.
 
-proposals: IFL(public({name: bytes32,vote_count: int128}[int128]), this)
+# Information about voters
+# a mapping
+voters: IFL(public({weight: int128, voted: bool, delegate: address, vote: int128}[address]), voters)
+
+#voters: IFL({
+#   # weight is accumulated by delegation
+#   weight: int128,
+#   # if true, that person already voted (which includes voting by delegating)
+#   voted: bool,
+#   # person delegated to
+#   delegate: address,
+#   # index of the voted proposal, which is not meaningful unless `voted` is True.
+#   vote: int128
+#}[address], voters)
+
+# This is a type for a list of proposals.
+proposals: IFL(public({name: bytes32, vote_count: int128}[int128]), this)
+#proposals: IFL(public({
+#   # short name (up to 32 bytes)
+#   name: bytes32,
+#   # int128ber of accumulated votes
+#   vote_count: int128
+#}[int128]), this)
 
 voter_count: IFL(int128, this)
 chairperson: IFL(address, chairperson)
@@ -19,9 +40,9 @@ def delegated(addr: address) -> bool:
 def directly_voted(addr: address) -> bool:
     return self.voters[addr].voted and (not self.voters[addr].delegate)
 
+# Setup global variables
 @public
 @IFL_this
-# only support voting between two proposals
 def __init__(_names: bytes32[2]):
     self.chairperson = msg.sender
     self.voter_count = 0
@@ -32,10 +53,14 @@ def __init__(_names: bytes32[2]):
         }
     self.num_proposals += 1
 
+# Give a `voter` the right to vote on this ballot.
+# This may only be called by the `chairperson`.
 @public
 @IFL_chairperson
 def give_right_to_vote(voter: address):
+    # Throws if the sender is not the chairperson. And now it is not necessary since we have IFL!
     #assert msg.sender == self.chairperson
+
     assert not self.voters[voter].voted
     assert self.voters[voter].weight == 0
     self.voters[voter].weight = 1
@@ -65,41 +90,42 @@ def forward_weight(delegater: address):
 #if (endorse(self.voters[target].voted, voters, this)):
 #if(not endorse(self.voters[target].delegate, chairperson, this)):
         if(not self.voters[target].delegate):
-            self.proposals[self.voters[target].vote].vote_count += weight_to_forward
+            self.proposals[endorse(self.voters[target].vote, voters, this)].vote_count += weight_to_forward
             self.voters[target].weight = 0
+
 
 
 @public
 @IFL_voters
 def delegate(to: address):
-    assert not self.voters[msg.sender].voted
+    assert not self.voters[endorse(msg.sender, bot, voters)].voted
     # Throws if the sender tries to delegate their vote to themselves or to
     # the default address value of 0x0000000000000000000000000000000000000000
     # (the latter might not be problematic, but I don't want to think about it).
     assert to != msg.sender and not not to
 
-    self.voters[msg.sender].voted = True
-    self.voters[msg.sender].delegate = to
+    self.voters[endorse(msg.sender, bot, this)].voted = True
+    self.voters[endorse(msg.sender, bot, this)].delegate = to
 
     # This call will throw if and only if this delegation would cause a loop
     # of length <= 5 that ends up delegating back to the delegator.
     #self.forward_weight(msg.sender)
 
-    assert self.voters[msg.sender].weight > 0
-    assert not not self.voters[msg.sender].delegate
+    assert self.voters[endorse(msg.sender, bot, voters)].weight > 0
+    assert not not self.voters[endorse(msg.sender, bot, voters)].delegate
 
-    target: address = self.voters[msg.sender].delegate
+    target: address = self.voters[endorse(msg.sender, bot, voters)].delegate
     #Range only accepts literal values
     for i in range(endorse(4, bot, this)): # Change 4 to a bigger one
         if(not not self.voters[target].delegate):
-#        if (endorse(not not self.voters[target].delegate, chairperson, this)):
+            #        if (endorse(not not self.voters[target].delegate, chairperson, this)):
             target = self.voters[target].delegate
             assert target != msg.sender
         else:
             break
 
-    weight_to_forward: int128 = self.voters[msg.sender].weight
-    self.voters[msg.sender].weight = 0
+    weight_to_forward: int128 = self.voters[endorse(msg.sender, bot, voters)].weight
+    self.voters[endorse(msg.sender, bot, this)].weight = 0
     self.voters[target].weight += weight_to_forward
 
     if(self.voters[target].voted):
@@ -107,23 +133,23 @@ def delegate(to: address):
     #if (endorse(self.voters[target].voted, voters, this)):
     #if(not endorse(self.voters[target].delegate, chairperson, this)):
         if(not self.voters[target].delegate):
-            self.proposals[self.voters[target].vote].vote_count += weight_to_forward
+            self.proposals[endorse(self.voters[target].vote, voters, this)].vote_count += weight_to_forward
             self.voters[target].weight = 0
 
 @public
 @IFL_voters
 def vote(proposal: int128):
     # can't vote twice
-    assert not self.voters[msg.sender].voted
+    assert not self.voters[endorse(msg.sender, bot, voters)].voted
     # can only vote on legitimate proposals
     assert proposal < self.num_proposals
 
-    self.voters[msg.sender].vote = proposal
-    self.voters[msg.sender].voted = True
+    self.voters[endorse(msg.sender, bot, voters)].vote = proposal
+    self.voters[endorse(msg.sender, bot, voters)].voted = True
 
     # transfer msg.sender's weight to proposal
-    self.proposals[proposal].vote_count += self.voters[msg.sender].weight
-    self.voters[msg.sender].weight = 0
+    self.proposals[proposal].vote_count += self.voters[endorse(msg.sender, bot, voters)].weight
+    self.voters[endorse(msg.sender, bot, this)].weight = 0
 
 @public
 @IFL_this
@@ -140,3 +166,5 @@ def winning_proposal() -> int128:
 @IFL_this
 def winner_name() -> bytes32:
     return self.proposals[self.winning_proposal()].name
+
+
