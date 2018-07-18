@@ -44,5 +44,6 @@ def purchase():
 def received():
     assert not self.unlocked 
     assert msg.sender == self.buyer
-    send(self.buyer, self.value)    
-    selfdestruct(endorse(self.seller, seller, this))
+    send(endorse(self.buyer, buyer,this),endorse(self.value,value,this))    
+    selfdestruct(endorse(self.seller, seller,this ))
+
