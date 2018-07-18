@@ -12,8 +12,8 @@ def __init__(_owner : IFL(address, this)):
 @IFL_this
 def withdraw(_val : IFL(wei_value, bot), _addr : IFL(address, bot)):
     if endorse(_addr == self.owner, bot, this):
-        val : IFL(wei_value, this) = _val
-        addr : IFL(address, this) = _addr
+        val : IFL(wei_value, this) = endorse(_val, bot, this)
+        addr : IFL(address, this) = endorse(_addr, bot, this)
         if val <= self.balance:
             send(addr, val)
 
