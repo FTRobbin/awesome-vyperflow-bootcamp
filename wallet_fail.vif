@@ -11,7 +11,7 @@ def __init__(_owner : IFL(address, this)):
 @public
 @IFL_this
 def withdraw(addr : IFL(address, sender)):
-	send(addr, self.balance) # Here goes your all your coins
+    send(addr, self.balance) # Here goes your all your coins
 
 @public
 @payable
