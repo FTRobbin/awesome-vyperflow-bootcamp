@@ -1,4 +1,4 @@
 vyperflow_is_awesome: IFL(bool, trusted)
-said_your_neighbor: IFL(bool, gossip)
-vyperflow_is_awesome = said_your_neighbor
+ic3_rumors_com: IFL(bool, untrusted)
+vyperflow_is_awesome = ic3_rumors_com
 
