@@ -10,8 +10,8 @@ def __init__(_owner : IFL(address, this)):
 
 @public
 @IFL_this
-def withdraw(addr : IFL(address, sender)):
-    send(endorse(addr, this), self.balance)
+def withdraw(addr : IFL(address, owner)):
+    send(addr, self.balance)
 
 @public
 @payable
